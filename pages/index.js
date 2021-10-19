@@ -56,7 +56,6 @@ export default function Home() {
       </ModalFooter>
     </Modal>
   );
-  console.log(SESSION.docs);
   return (
     <div>
       <Head>

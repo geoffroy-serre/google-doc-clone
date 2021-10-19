@@ -11,7 +11,7 @@ function DocumentRow({ id, date, fileName }) {
       {/* Date is converted to string to avoid an Object error message */}
       <p className="pr-10 text-sm">{date?.toDate().toLocaleDateString()}</p>
 
-      <Button color="gray" buttonType="outline" rounded={true} iconOnly={true} ripple="dark" className="border-0 pl-2">
+      <Button color="gray" buttonType="outline" rounded={true} iconOnly={true} ripple="dark" className="border-0">
         <Icon name="more_vert" size="3xl" />
       </Button>
     </div>
