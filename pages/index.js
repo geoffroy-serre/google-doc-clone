@@ -9,15 +9,29 @@ import Modal from '@material-tailwind/react/Modal';
 import ModalBody from '@material-tailwind/react/ModalBody';
 import ModalFooter from '@material-tailwind/react/ModalFooter';
 import { useState } from 'react';
+import { db } from '../firebase';
+import firebase from 'firebase/compat/app';
+import { useCollectionOnce } from 'react-firebase-hooks/firestore';
+import DocumentRow from '../components/DocumentRow';
 
 export default function Home() {
   const [SESSION] = useSession();
   const [SHOW_MODAL, SET_SHOW_MODAL] = useState(false);
   const [INPUT, SET_INPUT] = useState();
+  const [SNAPSHOT] = useCollectionOnce(db.collection('userDocs').doc(SESSION?.user.email).collection('docs').orderBy('timestamp', 'desc'));
   if (!SESSION) {
     return <Login />;
   }
-  const CREATE_DOCUMENT = () => {};
+  const CREATE_DOCUMENT = () => {
+    if (!INPUT) return;
+    db.collection('userDocs').doc(SESSION.user.email).collection('docs').add({
+      fileName: INPUT,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+    });
+
+    SET_INPUT('');
+    SET_SHOW_MODAL(false);
+  };
   const MODAL = (
     <Modal size="sm" active={SHOW_MODAL} toggler={() => SET_SHOW_MODAL(false)}>
       <ModalBody>
@@ -27,20 +41,22 @@ export default function Home() {
           onChange={(e) => SET_INPUT(e.target.value)}
           className="outline-none w-full"
           placeholder="Enter name of document..."
-          onKeyDown={(e) => e.key === 'Enter' && CREATE_DOCUMENT()}
+          // Syntax like an IF. It will trigger the CREATE_DOCUMENT only if e.key is strictly Enter. Else nothing happens.
+          onKeyDown={(e) => e.key === 'Enter' && CREATE_DOCUMENT}
         />
       </ModalBody>
       <ModalFooter>
         <Button color="blue" buttonType="link" onClick={(e) => SET_SHOW_MODAL(false)} ripple="dark">
           Cancel
         </Button>
+        {/* Here CREATE_DOCUMENT is called with the parenthesis to avoid its automatic launch. */}
         <Button color="blue" onClick={CREATE_DOCUMENT} ripple="light">
           Create
         </Button>
       </ModalFooter>
     </Modal>
   );
-
+  console.log(SESSION.docs);
   return (
     <div>
       <Head>
@@ -72,6 +88,10 @@ export default function Home() {
             <p className="mr-12">Date created</p>
             <Icon name="folder" size="3xl" color="gray" />
           </div>
+
+          {SNAPSHOT?.docs.map((doc) => (
+            <DocumentRow key={doc.id} id={doc.id} date={doc.data().timestamp} fileName={doc.data().fileName} />
+          ))}
         </div>
       </section>
     </div>
