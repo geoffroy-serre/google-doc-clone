@@ -1,6 +1,8 @@
-import 'tailwindcss/tailwind.css';
-import 'tailwindcss/screens.css';
 import '@material-tailwind/react/tailwind.css';
+
+import 'tailwindcss/tailwind.css';
+import { Provider } from 'next-auth/client';
+
 import Head from 'next/head';
 
 function MyApp({ Component, pageProps }) {
@@ -9,7 +11,9 @@ function MyApp({ Component, pageProps }) {
       <Head>
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet" />
       </Head>
-      <Component {...pageProps} />
+      <Provider session={pageProps.session}>
+        <Component {...pageProps} />
+      </Provider>
     </>
   );
 }
